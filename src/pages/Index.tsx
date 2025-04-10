@@ -12,6 +12,7 @@ import EmissionsSummary from "@/components/carbon-calculator/EmissionsSummary";
 import EcoTips from "@/components/carbon-calculator/EcoTips";
 import StatCard from "@/components/carbon-calculator/CategoryStats";
 import RecommendationCard from "@/components/carbon-calculator/RecommendationCard";
+import WorldMap from "@/components/carbon-calculator/WorldMap";
 
 import {
   calculateEmission,
@@ -83,9 +84,10 @@ const Index = () => {
         <DashboardHeader />
 
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
+          <TabsList className="grid w-full grid-cols-3 md:w-[600px]">
             <TabsTrigger value="dashboard">Painel</TabsTrigger>
             <TabsTrigger value="calculator">Calculadora</TabsTrigger>
+            <TabsTrigger value="global">Mapa Global</TabsTrigger>
           </TabsList>
           
           <TabsContent value="dashboard" className="space-y-6">
@@ -154,6 +156,12 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <CarbonCalculator onCalculate={handleCalculate} />
               <EcoTips />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="global">
+            <div className="grid grid-cols-1 gap-6">
+              <WorldMap />
             </div>
           </TabsContent>
         </Tabs>

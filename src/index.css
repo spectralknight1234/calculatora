@@ -115,4 +115,19 @@
   .eco-gradient-blue {
     @apply bg-gradient-to-r from-eco-sky to-eco-ocean;
   }
+  
+  /* Estilos para o mapa de carbono */
+  .carbon-map-popup {
+    @apply text-sm bg-background border border-border rounded-md shadow-md;
+    padding: 8px 12px;
+    max-width: 240px;
+  }
+  
+  .carbon-map-popup .mapboxgl-popup-content {
+    @apply border-0 shadow-none bg-transparent p-0;
+  }
+  
+  .carbon-map-popup .mapboxgl-popup-tip {
+    @apply border-t-border;
+  }
 }
