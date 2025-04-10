@@ -13,8 +13,8 @@ const EmissionsSummary = ({ totalEmissions, goal }: EmissionsSummaryProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Total Carbon Footprint</CardTitle>
-        <CardDescription>Your current carbon emissions and reduction target</CardDescription>
+        <CardTitle>Pegada de Carbono Total</CardTitle>
+        <CardDescription>Suas emissões atuais de carbono e meta de redução</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-center">
@@ -24,16 +24,16 @@ const EmissionsSummary = ({ totalEmissions, goal }: EmissionsSummaryProps) => {
         
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Current</span>
-            <span>Goal: {goal} kg CO₂e</span>
+            <span>Atual</span>
+            <span>Meta: {goal} kg CO₂e</span>
           </div>
           <Progress value={progress} className="h-2" />
           
           <div className="text-sm text-muted-foreground text-center mt-2">
             {progress >= 100 ? (
-              <span className="text-green-600 font-medium">Goal achieved! 🎉</span>
+              <span className="text-green-600 font-medium">Meta alcançada! 🎉</span>
             ) : (
-              <span>You need to reduce by {(totalEmissions - goal).toFixed(1)} kg CO₂e to reach your goal</span>
+              <span>Você precisa reduzir {(totalEmissions - goal).toFixed(1)} kg CO₂e para atingir sua meta</span>
             )}
           </div>
         </div>

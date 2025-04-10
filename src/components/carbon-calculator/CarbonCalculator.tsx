@@ -19,11 +19,11 @@ import { toast } from "sonner";
 
 const calculatorSchema = z.object({
   category: z.string({
-    required_error: "Please select a category",
+    required_error: "Por favor, selecione uma categoria",
   }),
   amount: z.coerce.number({
-    required_error: "Please enter a value",
-    invalid_type_error: "Please enter a valid number",
+    required_error: "Por favor, insira um valor",
+    invalid_type_error: "Por favor, insira um número válido",
   }).positive(),
   unit: z.string().optional(),
 });
@@ -47,15 +47,15 @@ const CarbonCalculator = ({ onCalculate }: CarbonCalculatorProps) => {
   function onSubmit(values: CalculatorValues) {
     onCalculate(values);
     form.reset();
-    toast.success("Carbon emission calculated and added to your footprint.");
+    toast.success("Emissão de carbono calculada e adicionada à sua pegada.");
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Calculate Your Emissions</CardTitle>
+        <CardTitle>Calcule Suas Emissões</CardTitle>
         <CardDescription>
-          Enter your activity details to calculate its carbon footprint
+          Insira os detalhes da sua atividade para calcular sua pegada de carbono
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -67,23 +67,23 @@ const CarbonCalculator = ({ onCalculate }: CarbonCalculatorProps) => {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Categoria</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
+                          <SelectValue placeholder="Selecione uma categoria" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="transportation">Transportation</SelectItem>
-                        <SelectItem value="electricity">Electricity</SelectItem>
-                        <SelectItem value="food">Food</SelectItem>
-                        <SelectItem value="shopping">Shopping</SelectItem>
-                        <SelectItem value="waste">Waste</SelectItem>
+                        <SelectItem value="transportation">Transporte</SelectItem>
+                        <SelectItem value="electricity">Eletricidade</SelectItem>
+                        <SelectItem value="food">Alimentação</SelectItem>
+                        <SelectItem value="shopping">Compras</SelectItem>
+                        <SelectItem value="waste">Resíduos</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      Select the category of your activity
+                      Selecione a categoria da sua atividade
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -95,12 +95,12 @@ const CarbonCalculator = ({ onCalculate }: CarbonCalculatorProps) => {
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount</FormLabel>
+                    <FormLabel>Quantidade</FormLabel>
                     <FormControl>
                       <Input type="number" step="0.01" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Enter the amount (e.g., km driven, kWh used)
+                      Digite a quantidade (ex: km percorridos, kWh utilizados)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -109,7 +109,7 @@ const CarbonCalculator = ({ onCalculate }: CarbonCalculatorProps) => {
             </div>
 
             <Button type="submit" className="w-full">
-              Calculate
+              Calcular
             </Button>
           </form>
         </Form>

@@ -9,8 +9,8 @@ const DashboardHeader = () => {
           <Leaf className="h-6 w-6 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="font-bold text-2xl">Carbon Footprint Calculator</h1>
-          <p className="text-muted-foreground">Measure and reduce your environmental impact</p>
+          <h1 className="font-bold text-2xl">Calculadora de Pegada de Carbono</h1>
+          <p className="text-muted-foreground">Meça e reduza seu impacto ambiental</p>
         </div>
       </div>
     </div>

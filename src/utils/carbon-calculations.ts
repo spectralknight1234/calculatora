@@ -8,13 +8,13 @@ export interface EmissionCategory {
   factor: number;
 }
 
-// Simple emission factors (kg CO2e per unit)
+// Fatores de emissão simples (kg CO2e por unidade)
 const EMISSION_FACTORS = {
-  transportation: 0.12, // per km
-  electricity: 0.5, // per kWh
-  food: 2.5, // per kg
-  shopping: 0.5, // per dollar
-  waste: 0.5, // per kg
+  transportation: 0.12, // por km
+  electricity: 0.5, // por kWh
+  food: 2.5, // por kg
+  shopping: 0.5, // por real
+  waste: 0.5, // por kg
 };
 
 export const calculateEmission = (
@@ -34,7 +34,7 @@ export const getCategoryUnit = (category: string): string => {
     case "food":
       return "kg";
     case "shopping":
-      return "$";
+      return "R$";
     case "waste":
       return "kg";
     default:
@@ -45,32 +45,32 @@ export const getCategoryUnit = (category: string): string => {
 export const getCategoryColor = (category: string): string => {
   switch (category) {
     case "transportation":
-      return "#6AAFDC"; // sky blue
+      return "#6AAFDC"; // azul céu
     case "electricity":
-      return "#FFB347"; // light orange
+      return "#FFB347"; // laranja claro
     case "food":
-      return "#8ABA6F"; // light green 
+      return "#8ABA6F"; // verde claro 
     case "shopping":
-      return "#B19CD9"; // light purple
+      return "#B19CD9"; // roxo claro
     case "waste":
-      return "#FF6B6B"; // light red
+      return "#FF6B6B"; // vermelho claro
     default:
-      return "#A9A9A9"; // grey for unknown
+      return "#A9A9A9"; // cinza para desconhecido
   }
 };
 
 export const getCategoryName = (category: string): string => {
   switch (category) {
     case "transportation":
-      return "Transportation";
+      return "Transporte";
     case "electricity":
-      return "Electricity";
+      return "Eletricidade";
     case "food":
-      return "Food";
+      return "Alimentação";
     case "shopping":
-      return "Shopping";
+      return "Compras";
     case "waste":
-      return "Waste";
+      return "Resíduos";
     default:
       return category;
   }
@@ -79,37 +79,37 @@ export const getCategoryName = (category: string): string => {
 export const getRecommendations = (data: EmissionCategory[]): string[] => {
   const recommendations: string[] = [];
   
-  // Find highest emission category
+  // Encontrar categoria com maior emissão
   if (data.length > 0) {
     const highest = [...data].sort((a, b) => b.emissions - a.emissions)[0];
     
     switch (highest.id) {
       case "transportation":
-        recommendations.push("Consider using public transportation, carpooling, or biking for your daily commute.");
-        recommendations.push("If possible, switch to a hybrid or electric vehicle for your next car purchase.");
+        recommendations.push("Considere usar transporte público, caronas ou bicicleta para seu deslocamento diário.");
+        recommendations.push("Se possível, mude para um veículo híbrido ou elétrico na sua próxima compra de carro.");
         break;
       case "electricity":
-        recommendations.push("Switch to energy-efficient LED bulbs throughout your home.");
-        recommendations.push("Consider installing a programmable thermostat to reduce heating and cooling when not needed.");
+        recommendations.push("Troque para lâmpadas LED em toda sua casa.");
+        recommendations.push("Considere instalar um termostato programável para reduzir o aquecimento e resfriamento quando não forem necessários.");
         break;
       case "food":
-        recommendations.push("Try incorporating more plant-based meals in your diet.");
-        recommendations.push("Buy local and seasonal produce to reduce transportation emissions.");
+        recommendations.push("Tente incorporar mais refeições à base de plantas em sua dieta.");
+        recommendations.push("Compre produtos locais e sazonais para reduzir as emissões de transporte.");
         break;
       case "shopping":
-        recommendations.push("Before buying new, consider if you can repair, borrow, or buy second-hand.");
-        recommendations.push("Look for products with minimal packaging or packaging made from recycled materials.");
+        recommendations.push("Antes de comprar algo novo, considere se você pode reparar, emprestar ou comprar em segunda mão.");
+        recommendations.push("Procure produtos com embalagem mínima ou embalagem feita de materiais reciclados.");
         break;
       case "waste":
-        recommendations.push("Start composting food scraps to reduce methane emissions from landfills.");
-        recommendations.push("Recycle properly and aim to reduce single-use items in your daily routine.");
+        recommendations.push("Comece a compostar restos de comida para reduzir as emissões de metano dos aterros.");
+        recommendations.push("Recicle corretamente e tente reduzir itens descartáveis em sua rotina diária.");
         break;
     }
   }
   
-  // General recommendations
-  recommendations.push("Conduct a home energy audit to identify areas for improvement.");
-  recommendations.push("Consider offsetting your carbon footprint through verified carbon offset programs.");
+  // Recomendações gerais
+  recommendations.push("Realize uma auditoria energética em casa para identificar áreas de melhoria.");
+  recommendations.push("Considere compensar sua pegada de carbono através de programas de compensação de carbono verificados.");
   
   return recommendations;
 };
@@ -117,7 +117,7 @@ export const getRecommendations = (data: EmissionCategory[]): string[] => {
 export const DEFAULT_EMISSION_DATA: EmissionCategory[] = [
   {
     id: "transportation",
-    name: "Transportation",
+    name: "Transporte",
     color: getCategoryColor("transportation"),
     emissions: 120,
     unit: "km",
@@ -125,7 +125,7 @@ export const DEFAULT_EMISSION_DATA: EmissionCategory[] = [
   },
   {
     id: "electricity",
-    name: "Electricity",
+    name: "Eletricidade",
     color: getCategoryColor("electricity"),
     emissions: 80,
     unit: "kWh",
@@ -133,7 +133,7 @@ export const DEFAULT_EMISSION_DATA: EmissionCategory[] = [
   },
   {
     id: "food",
-    name: "Food",
+    name: "Alimentação",
     color: getCategoryColor("food"),
     emissions: 60,
     unit: "kg",
@@ -141,15 +141,15 @@ export const DEFAULT_EMISSION_DATA: EmissionCategory[] = [
   },
   {
     id: "shopping",
-    name: "Shopping",
+    name: "Compras",
     color: getCategoryColor("shopping"),
     emissions: 40,
-    unit: "$",
+    unit: "R$",
     factor: EMISSION_FACTORS.shopping,
   },
   {
     id: "waste",
-    name: "Waste",
+    name: "Resíduos",
     color: getCategoryColor("waste"),
     emissions: 25,
     unit: "kg",

@@ -12,10 +12,10 @@ const RecommendationCard = ({ recommendations }: RecommendationCardProps) => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <Sparkles className="mr-2 h-5 w-5 text-yellow-400" />
-          Personalized Recommendations
+          Recomendações Personalizadas
         </CardTitle>
         <CardDescription>
-          Based on your carbon footprint, here are some suggestions to reduce your impact
+          Com base na sua pegada de carbono, aqui estão algumas sugestões para reduzir seu impacto
         </CardDescription>
       </CardHeader>
       <CardContent>

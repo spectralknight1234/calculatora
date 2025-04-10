@@ -4,24 +4,24 @@ import { Lightbulb } from "lucide-react";
 
 const tips = [
   {
-    category: "Transportation",
-    tip: "Opt for public transport, cycling, or walking for shorter trips. If you must drive, consider carpooling or switching to an electric vehicle.",
+    category: "Transporte",
+    tip: "Opte por transporte público, bicicleta ou caminhada para trajetos curtos. Se precisar dirigir, considere caronas ou um veículo elétrico.",
   },
   {
-    category: "Energy",
-    tip: "Switch to LED bulbs, unplug electronics when not in use, and consider installing solar panels if possible.",
+    category: "Energia",
+    tip: "Mude para lâmpadas LED, desligue eletrônicos quando não estiver usando e considere instalar painéis solares se possível.",
   },
   {
-    category: "Food",
-    tip: "Reduce meat consumption, especially beef, and opt for locally sourced, seasonal produce to reduce food miles.",
+    category: "Alimentação",
+    tip: "Reduza o consumo de carne, especialmente bovina, e opte por produtos locais e sazonais para reduzir a pegada de carbono dos alimentos.",
   },
   {
-    category: "Shopping",
-    tip: "Choose products with minimal packaging, buy second-hand when possible, and invest in quality items that last longer.",
+    category: "Compras",
+    tip: "Escolha produtos com embalagem mínima, compre itens usados quando possível e invista em produtos de qualidade que duram mais tempo.",
   },
   {
-    category: "Waste",
-    tip: "Practice the 3 Rs: Reduce, Reuse, Recycle. Compost food scraps and avoid single-use plastics.",
+    category: "Resíduos",
+    tip: "Pratique os 3 Rs: Reduzir, Reutilizar, Reciclar. Faça compostagem de restos de comida e evite plásticos de uso único.",
   },
 ];
 
@@ -31,10 +31,10 @@ const EcoTips = () => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <Lightbulb className="mr-2 h-5 w-5 text-yellow-500" />
-          Eco-Friendly Tips
+          Dicas Ecológicas
         </CardTitle>
         <CardDescription>
-          Simple ways to reduce your carbon footprint
+          Formas simples de reduzir sua pegada de carbono
         </CardDescription>
       </CardHeader>
       <CardContent>

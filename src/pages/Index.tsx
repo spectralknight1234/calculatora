@@ -25,7 +25,7 @@ import {
 
 const Index = () => {
   const [emissionData, setEmissionData] = useState<EmissionCategory[]>(DEFAULT_EMISSION_DATA);
-  const [goal] = useState(250); // Carbon reduction goal in kg CO2e
+  const [goal] = useState(250); // Meta de redução de carbono em kg CO2e
 
   const totalEmissions = emissionData.reduce(
     (sum, category) => sum + category.emissions,
@@ -54,13 +54,13 @@ const Index = () => {
       );
 
       if (categoryIndex >= 0) {
-        // Update existing category
+        // Atualiza categoria existente
         newData[categoryIndex] = {
           ...newData[categoryIndex],
           emissions: newData[categoryIndex].emissions + emissionAmount,
         };
       } else {
-        // Add new category
+        // Adiciona nova categoria
         newData.push({
           id: values.category,
           name: getCategoryName(values.category),
@@ -74,7 +74,7 @@ const Index = () => {
       return newData;
     });
 
-    toast.success(`Added ${emissionAmount.toFixed(1)} kg of CO₂e from ${getCategoryName(values.category)}`);
+    toast.success(`Adicionado ${emissionAmount.toFixed(1)} kg de CO₂e de ${getCategoryName(values.category)}`);
   };
 
   return (
@@ -84,8 +84,8 @@ const Index = () => {
 
         <Tabs defaultValue="dashboard" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="calculator">Calculator</TabsTrigger>
+            <TabsTrigger value="dashboard">Painel</TabsTrigger>
+            <TabsTrigger value="calculator">Calculadora</TabsTrigger>
           </TabsList>
           
           <TabsContent value="dashboard" className="space-y-6">
@@ -93,50 +93,50 @@ const Index = () => {
               <EmissionsSummary totalEmissions={totalEmissions} goal={goal} />
               
               <StatCard
-                title="Transportation"
+                title="Transporte"
                 value={emissionData.find(c => c.id === "transportation")?.emissions || 0}
                 unit="kg CO₂e"
-                description="From travel and commuting"
+                description="De viagens e deslocamentos"
                 icon={<Car />}
-                trend={{ value: 5, label: "from last month", positive: true }}
+                trend={{ value: 5, label: "do mês anterior", positive: true }}
               />
               
               <StatCard
-                title="Energy"
+                title="Energia"
                 value={emissionData.find(c => c.id === "electricity")?.emissions || 0}
                 unit="kg CO₂e"
-                description="From electricity and heating"
+                description="De eletricidade e aquecimento"
                 icon={<Lightbulb />}
-                trend={{ value: 2, label: "from last month", positive: false }}
+                trend={{ value: 2, label: "do mês anterior", positive: false }}
               />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <StatCard
-                title="Food"
+                title="Alimentação"
                 value={emissionData.find(c => c.id === "food")?.emissions || 0}
                 unit="kg CO₂e"
-                description="From food consumption"
+                description="Do consumo de alimentos"
                 icon={<Utensils />}
-                trend={{ value: 3, label: "from last month", positive: true }}
+                trend={{ value: 3, label: "do mês anterior", positive: true }}
               />
               
               <StatCard
-                title="Shopping"
+                title="Compras"
                 value={emissionData.find(c => c.id === "shopping")?.emissions || 0}
                 unit="kg CO₂e"
-                description="From purchases"
+                description="De suas compras"
                 icon={<ShoppingBag />}
-                trend={{ value: 1, label: "from last month", positive: false }}
+                trend={{ value: 1, label: "do mês anterior", positive: false }}
               />
               
               <StatCard
-                title="Waste"
+                title="Resíduos"
                 value={emissionData.find(c => c.id === "waste")?.emissions || 0}
                 unit="kg CO₂e"
-                description="From waste generation"
+                description="Da geração de resíduos"
                 icon={<Trash2 />}
-                trend={{ value: 7, label: "from last month", positive: true }}
+                trend={{ value: 7, label: "do mês anterior", positive: true }}
               />
             </div>
             

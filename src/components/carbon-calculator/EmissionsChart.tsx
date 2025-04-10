@@ -14,9 +14,9 @@ const EmissionsChart = ({ data }: EmissionsChartProps) => {
   return (
     <Card className="col-span-2">
       <CardHeader>
-        <CardTitle>Carbon Emissions by Category</CardTitle>
+        <CardTitle>Emissões de Carbono por Categoria</CardTitle>
         <CardDescription>
-          Breakdown of your carbon footprint by source
+          Detalhamento da sua pegada de carbono por fonte
         </CardDescription>
       </CardHeader>
       <CardContent className="h-80">
@@ -26,13 +26,13 @@ const EmissionsChart = ({ data }: EmissionsChartProps) => {
             <XAxis dataKey="name" />
             <YAxis unit=" kg" />
             <Tooltip
-              formatter={(value) => [`${value} kg CO₂e`, "Emissions"]}
+              formatter={(value) => [`${value} kg CO₂e`, "Emissões"]}
               contentStyle={{ borderRadius: "0.5rem", border: "1px solid #e2e8f0" }}
             />
             <Legend />
             <Bar 
               dataKey="value" 
-              name="CO₂ Emissions"
+              name="Emissões de CO₂"
               fill="#8ABA6F"
               radius={[4, 4, 0, 0]}
             />
