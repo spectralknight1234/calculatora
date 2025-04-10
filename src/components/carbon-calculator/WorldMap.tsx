@@ -3,31 +3,21 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Globe } from "lucide-react";
+import { Loader2, MapPin, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Dados de exemplo de emissões de carbono por país
-const carbonData = [
-  { id: 'BRA', name: 'Brasil', emissions: 2.15 },
-  { id: 'USA', name: 'Estados Unidos', emissions: 14.67 },
-  { id: 'CHN', name: 'China', emissions: 7.62 },
-  { id: 'IND', name: 'Índia', emissions: 1.92 },
-  { id: 'RUS', name: 'Rússia', emissions: 11.12 },
-  { id: 'DEU', name: 'Alemanha', emissions: 8.40 },
-  { id: 'GBR', name: 'Reino Unido', emissions: 5.55 },
-  { id: 'JPN', name: 'Japão', emissions: 9.13 },
-  { id: 'CAN', name: 'Canadá', emissions: 15.32 },
-  { id: 'AUS', name: 'Austrália', emissions: 16.75 },
-  { id: 'MEX', name: 'México', emissions: 3.11 },
-  { id: 'FRA', name: 'França', emissions: 4.51 },
-  { id: 'ZAF', name: 'África do Sul', emissions: 7.51 },
-  { id: 'ARG', name: 'Argentina', emissions: 3.83 },
-  { id: 'ITA', name: 'Itália', emissions: 5.38 },
-  { id: 'ESP', name: 'Espanha', emissions: 5.03 },
-  { id: 'IDN', name: 'Indonésia', emissions: 2.05 },
-  { id: 'TUR', name: 'Turquia', emissions: 4.66 },
-  { id: 'SAU', name: 'Arábia Saudita', emissions: 16.85 },
-  { id: 'NGA', name: 'Nigéria', emissions: 0.64 },
+// Dados fictícios de regiões e suas emissões
+const worldRegions = [
+  { id: 'NOR', name: 'Norália', emissions: 14.67, color: '#8B5CF6', lat: 65, lng: -30 },
+  { id: 'AQU', name: 'Aquatera', emissions: 3.21, color: '#0EA5E9', lat: 10, lng: 0 },
+  { id: 'VER', name: 'Verdélia', emissions: 1.92, color: '#8ABA6F', lat: -20, lng: 20 },
+  { id: 'PYR', name: 'Pyronia', emissions: 11.12, color: '#F97316', lat: 50, lng: 60 },
+  { id: 'CRY', name: 'Crystalia', emissions: 8.40, color: '#D946EF', lat: 30, lng: 100 },
+  { id: 'SOL', name: 'Solara', emissions: 5.55, color: '#FEC6A1', lat: -40, lng: 140 },
+  { id: 'ARG', name: 'Argentum', emissions: 9.13, color: '#C8C8C9', lat: 65, lng: 170 },
+  { id: 'BOT', name: 'Botânica', emissions: 2.15, color: '#94C973', lat: 0, lng: -60 },
+  { id: 'FRO', name: 'Frostland', emissions: 7.51, color: '#D3E4FD', lat: -70, lng: -120 },
+  { id: 'TER', name: 'Terra Central', emissions: 5.03, color: '#9F9EA1', lat: 0, lng: 85 },
 ];
 
 // Interface para o token do Mapbox
@@ -41,6 +31,7 @@ const WorldMap = ({ mapboxToken }: WorldMapProps) => {
   const [loading, setLoading] = useState(true);
   const [mapboxTokenInput, setMapboxTokenInput] = useState("");
   const [token, setToken] = useState(mapboxToken || "");
+  const [activeRegion, setActiveRegion] = useState<string | null>(null);
 
   const initializeMap = (accessToken: string) => {
     if (!mapContainer.current) return;
@@ -55,9 +46,10 @@ const WorldMap = ({ mapboxToken }: WorldMapProps) => {
 
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: 'mapbox://styles/mapbox/dark-v11',
         center: [0, 20],
-        zoom: 1.2,
+        zoom: 1.5,
+        projection: 'globe',
       });
 
       map.current.addControl(
@@ -70,89 +62,172 @@ const WorldMap = ({ mapboxToken }: WorldMapProps) => {
 
         if (!map.current) return;
 
-        // Adicionar fonte de dados dos países
-        map.current.addSource('countries', {
-          type: 'vector',
-          url: 'mapbox://mapbox.country-boundaries-v1',
+        // Configurar efeitos do globo
+        map.current.setFog({
+          color: 'rgb(23, 22, 25)',
+          'high-color': 'rgb(44, 42, 60)',
+          'horizon-blend': 0.4,
+          'space-color': 'rgb(11, 11, 15)',
+          'star-intensity': 0.8
         });
 
-        // Adicionar camada dos países
-        map.current.addLayer({
-          id: 'countries-fill',
-          type: 'fill',
-          source: 'countries',
-          'source-layer': 'country_boundaries',
-          paint: {
-            'fill-color': [
-              'match',
-              ['get', 'iso_3166_1'],
-              ...carbonData.flatMap(country => [country.id, getColorForEmission(country.emissions)]),
-              '#CCCCCC', // cor padrão para países sem dados
-            ],
-            'fill-opacity': 0.8,
-          },
+        // Adicionar regiões fictícias como marcadores
+        worldRegions.forEach(region => {
+          // Criar um elemento DOM para o marcador personalizado
+          const el = document.createElement('div');
+          el.className = 'region-marker';
+          el.style.backgroundColor = region.color;
+          el.style.width = '24px';
+          el.style.height = '24px';
+          el.style.borderRadius = '50%';
+          el.style.border = '2px solid white';
+          el.style.cursor = 'pointer';
+          el.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.3)';
+          
+          // Adicionar o marcador ao mapa
+          const marker = new mapboxgl.Marker(el)
+            .setLngLat([region.lng, region.lat])
+            .addTo(map.current!);
+          
+          // Adicionar popup com informações da região
+          const popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: true,
+            className: 'carbon-map-popup',
+            offset: 25
+          }).setHTML(`
+            <div class="p-2">
+              <h3 class="font-bold text-lg">${region.name}</h3>
+              <p class="text-sm mt-1">ID: ${region.id}</p>
+              <p class="text-sm">Emissão: ${region.emissions.toFixed(2)} toneladas CO₂ per capita/ano</p>
+            </div>
+          `);
+          
+          // Adicionar eventos ao marcador
+          el.addEventListener('mouseenter', () => {
+            marker.setPopup(popup);
+            popup.addTo(map.current!);
+            setActiveRegion(region.id);
+          });
+          
+          el.addEventListener('mouseleave', () => {
+            setTimeout(() => {
+              if (popup.isOpen()) popup.remove();
+              setActiveRegion(null);
+            }, 300);
+          });
         });
 
-        // Adicionar contornos dos países
+        // Adicionar linhas conectando regiões
+        map.current.addSource('routes', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                geometry: {
+                  type: 'LineString',
+                  coordinates: [
+                    [worldRegions[0].lng, worldRegions[0].lat],
+                    [worldRegions[1].lng, worldRegions[1].lat]
+                  ]
+                },
+                properties: { color: '#9b87f5' }
+              },
+              {
+                type: 'Feature',
+                geometry: {
+                  type: 'LineString',
+                  coordinates: [
+                    [worldRegions[1].lng, worldRegions[1].lat],
+                    [worldRegions[2].lng, worldRegions[2].lat]
+                  ]
+                },
+                properties: { color: '#8ABA6F' }
+              },
+              {
+                type: 'Feature',
+                geometry: {
+                  type: 'LineString',
+                  coordinates: [
+                    [worldRegions[2].lng, worldRegions[2].lat],
+                    [worldRegions[4].lng, worldRegions[4].lat]
+                  ]
+                },
+                properties: { color: '#D946EF' }
+              },
+              {
+                type: 'Feature',
+                geometry: {
+                  type: 'LineString',
+                  coordinates: [
+                    [worldRegions[3].lng, worldRegions[3].lat],
+                    [worldRegions[4].lng, worldRegions[4].lat]
+                  ]
+                },
+                properties: { color: '#F97316' }
+              },
+            ]
+          }
+        });
+        
         map.current.addLayer({
-          id: 'countries-border',
+          id: 'routes',
           type: 'line',
-          source: 'countries',
-          'source-layer': 'country_boundaries',
-          paint: {
-            'line-color': '#FFFFFF',
-            'line-width': 0.5,
+          source: 'routes',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
           },
-        });
-
-        // Adicionar popups ao passar o mouse sobre os países
-        map.current.on('mousemove', 'countries-fill', (e) => {
-          if (!e.features || e.features.length === 0) return;
-          
-          const countryCode = e.features[0].properties?.iso_3166_1 || '';
-          const countryData = carbonData.find(country => country.id === countryCode);
-          
-          if (countryData) {
-            const popup = new mapboxgl.Popup({
-              closeButton: false,
-              closeOnClick: false,
-              className: 'carbon-map-popup',
-            })
-              .setLngLat(e.lngLat)
-              .setHTML(`
-                <strong>${countryData.name}</strong><br/>
-                Emissão: ${countryData.emissions.toFixed(2)} toneladas CO₂ per capita/ano
-              `)
-              .addTo(map.current);
-              
-            map.current.on('mouseleave', 'countries-fill', () => {
-              popup.remove();
-            });
+          paint: {
+            'line-color': ['get', 'color'],
+            'line-width': 2,
+            'line-opacity': 0.7,
+            'line-dasharray': [2, 1]
           }
         });
 
-        // Mudar o cursor ao passar sobre países
-        map.current.on('mouseenter', 'countries-fill', () => {
-          if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+        // Adicionar efeito de rotação automática
+        const secondsPerRevolution = 180;
+        let userInteracting = false;
+        let spinEnabled = true;
+
+        function spinGlobe() {
+          if (!map.current || userInteracting || !spinEnabled) return;
+          
+          const distancePerSecond = 360 / secondsPerRevolution;
+          const center = map.current.getCenter();
+          center.lng -= distancePerSecond / 60;
+          map.current.easeTo({ center, duration: 1000, easing: (n) => n });
+          
+          setTimeout(spinGlobe, 1000);
+        }
+
+        map.current.on('mousedown', () => {
+          userInteracting = true;
         });
         
-        map.current.on('mouseleave', 'countries-fill', () => {
-          if (map.current) map.current.getCanvas().style.cursor = '';
+        map.current.on('mouseup', () => {
+          userInteracting = false;
+          setTimeout(spinGlobe, 3000);
         });
+        
+        map.current.on('touchstart', () => {
+          userInteracting = true;
+        });
+        
+        map.current.on('touchend', () => {
+          userInteracting = false;
+          setTimeout(spinGlobe, 3000);
+        });
+
+        spinGlobe();
       });
     } catch (error) {
       console.error('Erro ao inicializar o mapa:', error);
       setLoading(false);
     }
-  };
-
-  // Função para definir a cor com base na emissão
-  const getColorForEmission = (emission: number): string => {
-    if (emission < 2) return '#8ABA6F'; // verde (baixa emissão)
-    if (emission < 5) return '#94C973'; // verde claro
-    if (emission < 8) return '#FFD166'; // amarelo
-    if (emission < 12) return '#F8961E'; // laranja
-    return '#F94144'; // vermelho (alta emissão)
   };
 
   // Inicializar mapa quando o token estiver disponível
@@ -207,10 +282,10 @@ const WorldMap = ({ mapboxToken }: WorldMapProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Globe className="h-5 w-5" />
-          Mapa Global de Emissões de Carbono
+          Mapa Mundial de Carbonum
         </CardTitle>
         <CardDescription>
-          Visualize as emissões de carbono per capita por país
+          Explore o planeta Carbonum e suas regiões com diferentes níveis de emissão
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
@@ -227,27 +302,19 @@ const WorldMap = ({ mapboxToken }: WorldMapProps) => {
           )}
           
           <div className="absolute bottom-4 right-4 z-10 bg-background/90 p-3 rounded-md shadow-md">
-            <div className="text-xs font-medium mb-1">Emissões de CO₂ (ton per capita/ano)</div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-[#8ABA6F]"></div>
-              <span className="text-xs">{'<'}2</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-[#94C973]"></div>
-              <span className="text-xs">2-5</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-[#FFD166]"></div>
-              <span className="text-xs">5-8</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-[#F8961E]"></div>
-              <span className="text-xs">8-12</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-[#F94144]"></div>
-              <span className="text-xs">{'>'}12</span>
-            </div>
+            <div className="text-xs font-medium mb-1">Regiões de Carbonum</div>
+            {worldRegions.map((region) => (
+              <div 
+                key={region.id}
+                className={`flex items-center gap-1 ${activeRegion === region.id ? 'font-bold' : ''}`}
+              >
+                <div 
+                  className="w-3 h-3 rounded-full" 
+                  style={{ backgroundColor: region.color }}
+                ></div>
+                <span className="text-xs">{region.name} ({region.emissions.toFixed(1)})</span>
+              </div>
+            ))}
           </div>
         </div>
       </CardContent>

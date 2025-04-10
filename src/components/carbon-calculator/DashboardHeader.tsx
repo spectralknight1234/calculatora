@@ -15,7 +15,7 @@ const DashboardHeader = () => {
       </div>
       <div className="flex items-center space-x-1 text-sm text-muted-foreground">
         <Globe className="h-4 w-4 mr-1" />
-        <span>Emissões globais: 36,4 bilhões de toneladas de CO₂ por ano</span>
+        <span>Emissões globais em Carbonum: 28,7 bilhões de toneladas por ano</span>
       </div>
     </div>
   );
