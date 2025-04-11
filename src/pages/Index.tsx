@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Car, Lightbulb, ShoppingBag, Trash2, Utensils, FileText, RefreshCcw } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -67,13 +66,11 @@ const Index = () => {
       );
 
       if (categoryIndex >= 0) {
-        // Atualiza categoria existente
         newData[categoryIndex] = {
           ...newData[categoryIndex],
           emissions: newData[categoryIndex].emissions + emissionAmount,
         };
       } else {
-        // Adiciona nova categoria
         newData.push({
           id: values.category,
           name: getCategoryName(values.category),
@@ -91,7 +88,6 @@ const Index = () => {
   };
 
   const resetEmissionData = () => {
-    // Create a new array with all emission values reset to zero
     const resetData = emissionData.map(category => ({
       ...category,
       emissions: 0
@@ -104,16 +100,13 @@ const Index = () => {
   const exportToPDF = () => {
     const doc = new jsPDF();
     
-    // Título do documento
     doc.setFontSize(20);
     doc.text("Relatório de Pegada de Carbono", 20, 20);
     
-    // Data do relatório
     const today = new Date().toLocaleDateString('pt-BR');
     doc.setFontSize(10);
     doc.text(`Gerado em: ${today}`, 20, 30);
     
-    // Informações gerais
     doc.setFontSize(14);
     doc.text("Resumo de Emissões", 20, 40);
     
@@ -121,39 +114,40 @@ const Index = () => {
     doc.text(`Emissão Total: ${totalEmissions.toFixed(1)} kg CO₂e`, 20, 50);
     doc.text(`Meta: ${goal} kg CO₂e`, 20, 60);
     
-    // Tabela de dados por categoria
     doc.setFontSize(14);
     doc.text("Detalhamento por Categoria", 20, 75);
     
     let yPosition = 85;
     
-    // Cabeçalho da tabela
     doc.setFontSize(10);
     doc.text("Categoria", 20, yPosition);
     doc.text("Emissões (kg CO₂e)", 90, yPosition);
     yPosition += 5;
     
-    // Linha separadora
     doc.line(20, yPosition, 180, yPosition);
     yPosition += 10;
     
-    // Dados de cada categoria
     emissionData.forEach(category => {
       doc.text(category.name, 20, yPosition);
       doc.text(category.emissions.toFixed(1), 90, yPosition);
       yPosition += 10;
     });
     
-    // Recomendações
-    if (recommendations.length > 0) {
+    const recommendationsList = getRecommendations(emissionData);
+    
+    if (recommendationsList.length > 0) {
       yPosition += 10;
       doc.setFontSize(14);
       doc.text("Recomendações para Redução", 20, yPosition);
       yPosition += 10;
       
       doc.setFontSize(10);
-      recommendations.forEach(rec => {
-        doc.text(`• ${rec.description}`, 20, yPosition);
+      recommendationsList.forEach(rec => {
+        if (typeof rec === 'string') {
+          doc.text(`• ${rec}`, 20, yPosition);
+        } else if (rec && typeof rec === 'object' && 'description' in rec) {
+          doc.text(`• ${rec.description}`, 20, yPosition);
+        }
         yPosition += 7;
         if (yPosition > 270) {
           doc.addPage();
@@ -162,7 +156,6 @@ const Index = () => {
       });
     }
     
-    // Salvar o PDF
     doc.save("relatorio-pegada-carbono.pdf");
     toast.success("Relatório PDF gerado com sucesso!");
   };
