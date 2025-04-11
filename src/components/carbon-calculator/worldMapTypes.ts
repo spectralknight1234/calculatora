@@ -1,4 +1,4 @@
-
+// Keeping the interfaces for type reference, but they're no longer actively used
 export interface Region {
   id: string;
   name: string;

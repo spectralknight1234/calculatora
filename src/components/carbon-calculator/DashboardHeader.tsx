@@ -1,5 +1,5 @@
 
-import { Leaf, Globe } from "lucide-react";
+import { Leaf } from "lucide-react";
 
 const DashboardHeader = () => {
   return (
@@ -12,10 +12,6 @@ const DashboardHeader = () => {
           <h1 className="font-bold text-2xl">Calculadora de Pegada de Carbono</h1>
           <p className="text-muted-foreground">Meça e reduza seu impacto ambiental</p>
         </div>
-      </div>
-      <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-        <Globe className="h-4 w-4 mr-1" />
-        <span>Emissões globais em Carbonum: 28,7 bilhões de toneladas por ano</span>
       </div>
     </div>
   );
