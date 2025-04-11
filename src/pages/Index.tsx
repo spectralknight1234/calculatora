@@ -91,8 +91,14 @@ const Index = () => {
   };
 
   const resetEmissionData = () => {
-    setEmissionData(DEFAULT_EMISSION_DATA);
-    toast.success("Histórico de cálculos apagado com sucesso!");
+    // Create a new array with all emission values reset to zero
+    const resetData = emissionData.map(category => ({
+      ...category,
+      emissions: 0
+    }));
+    
+    setEmissionData(resetData);
+    toast.success("Histórico de cálculos zerado com sucesso!");
   };
 
   const exportToPDF = () => {
