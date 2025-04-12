@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Car, Lightbulb, ShoppingBag, Trash2, Utensils, FileText, RefreshCcw } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -35,9 +36,21 @@ import {
   getRecommendations,
 } from "@/utils/carbon-calculations";
 
+const STORAGE_KEY = 'carbon-emissions-data';
+
 const Index = () => {
-  const [emissionData, setEmissionData] = useState<EmissionCategory[]>(DEFAULT_EMISSION_DATA);
+  // Inicializa com dados do localStorage ou usa os dados padrão
+  const [emissionData, setEmissionData] = useState<EmissionCategory[]>(() => {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    return savedData ? JSON.parse(savedData) : DEFAULT_EMISSION_DATA;
+  });
+  
   const [goal] = useState(250); // Meta de redução de carbono em kg CO2e
+
+  // Salva os dados no localStorage quando eles mudam
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(emissionData));
+  }, [emissionData]);
 
   const totalEmissions = emissionData.reduce(
     (sum, category) => sum + category.emissions,
@@ -88,6 +101,7 @@ const Index = () => {
   };
 
   const resetEmissionData = () => {
+    // Zera apenas as emissões, preservando as categorias
     const resetData = emissionData.map(category => ({
       ...category,
       emissions: 0
@@ -143,15 +157,15 @@ const Index = () => {
       
       doc.setFontSize(10);
       recommendationsList.forEach(rec => {
-        if (typeof rec === 'string') {
-          doc.text(`• ${rec}`, 20, yPosition);
-        } else if (rec && typeof rec === 'object' && 'description' in rec) {
-          doc.text(`• ${rec.description}`, 20, yPosition);
-        }
-        yPosition += 7;
-        if (yPosition > 270) {
-          doc.addPage();
-          yPosition = 20;
+        // Verifica o tipo da recomendação (pode ser string ou objeto)
+        const recText = typeof rec === 'object' && rec !== null ? rec.description : rec;
+        if (recText) {
+          doc.text(`• ${recText}`, 20, yPosition);
+          yPosition += 7;
+          if (yPosition > 270) {
+            doc.addPage();
+            yPosition = 20;
+          }
         }
       });
     }
