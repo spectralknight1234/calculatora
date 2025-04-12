@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useState } from "react";
+import CalculatorQuestions from "./CalculatorQuestions";
 
 const calculatorSchema = z.object({
   category: z.string({
@@ -35,6 +37,8 @@ interface CarbonCalculatorProps {
 }
 
 const CarbonCalculator = ({ onCalculate }: CarbonCalculatorProps) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  
   const form = useForm<CalculatorValues>({
     resolver: zodResolver(calculatorSchema),
     defaultValues: {
@@ -50,9 +54,14 @@ const CarbonCalculator = ({ onCalculate }: CarbonCalculatorProps) => {
     toast.success("Emissão de carbono calculada e adicionada à sua pegada.");
   }
 
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    form.setValue("category", value);
+  };
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="py-4">
         <CardTitle>Calcule Suas Emissões</CardTitle>
         <CardDescription>
           Insira os detalhes da sua atividade para calcular sua pegada de carbono
@@ -68,7 +77,10 @@ const CarbonCalculator = ({ onCalculate }: CarbonCalculatorProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Categoria</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select 
+                      onValueChange={(value) => handleCategoryChange(value)} 
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione uma categoria" />
@@ -96,6 +108,7 @@ const CarbonCalculator = ({ onCalculate }: CarbonCalculatorProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Quantidade</FormLabel>
+                    {selectedCategory && <CalculatorQuestions category={selectedCategory} />}
                     <FormControl>
                       <Input type="number" step="0.01" {...field} />
                     </FormControl>
