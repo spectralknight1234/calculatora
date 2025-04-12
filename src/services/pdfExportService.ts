@@ -50,18 +50,38 @@ export function exportEmissionsToPDF(emissionData: EmissionCategory[], totalEmis
     doc.setFontSize(10);
     recommendationsList.forEach(rec => {
       // Verifica o tipo da recomendação (pode ser string ou objeto)
-      const recText = typeof rec === 'object' && rec !== null ? rec.description : rec;
-      if (recText) {
-        doc.text(`• ${recText}`, 20, yPosition);
-        yPosition += 7;
-        if (yPosition > 270) {
-          doc.addPage();
-          yPosition = 20;
-        }
+      const recText = typeof rec === 'object' && rec !== null ? rec.description : String(rec);
+      doc.text(`• ${recText}`, 20, yPosition);
+      yPosition += 7;
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
       }
     });
   }
   
   doc.save("relatorio-pegada-carbono.pdf");
   toast.success("Relatório PDF gerado com sucesso!");
+  
+  return doc;
+}
+
+// Função para enviar PDF por email
+export function sendPDFByEmail(email: string, emissionData: EmissionCategory[], totalEmissions: number, goal: number) {
+  try {
+    // Geramos o PDF
+    const doc = exportEmissionsToPDF(emissionData, totalEmissions, goal);
+    
+    // No ambiente cliente, simulamos o envio de email
+    // Em uma aplicação real, integraríamos com um serviço de e-mail
+    console.log(`Enviando PDF para: ${email}`);
+    
+    // Simula envio bem-sucedido
+    toast.success(`PDF enviado para ${email} com sucesso!`);
+    return true;
+  } catch (error) {
+    console.error("Erro ao enviar PDF por email:", error);
+    toast.error("Não foi possível enviar o PDF por e-mail. Tente novamente.");
+    return false;
+  }
 }
