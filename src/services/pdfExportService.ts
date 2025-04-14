@@ -67,7 +67,7 @@ export const exportEmissionsToPDF = (
     recommendationsList.forEach((rec) => {
       // Fix for the TS error: Check if rec is null before accessing it
       if (rec) {
-        const recText = typeof rec === "object" ? rec.description : String(rec);
+        const recText = typeof rec === "object" && rec.description ? rec.description : String(rec);
         doc.text(`• ${recText}`, 20, yPosition);
         yPosition += 7;
         if (yPosition > 270) {
