@@ -65,18 +65,19 @@ export const exportEmissionsToPDF = (
 
     doc.setFontSize(10);
     recommendationsList.forEach((rec) => {
-      // Check if rec is null or undefined before processing
-      if (rec) {
-        // Safely access properties with proper null checks
-        const recText = rec && typeof rec === "object" && rec.description 
-          ? rec.description 
-          : String(rec || "");
-        doc.text(`• ${recText}`, 20, yPosition);
-        yPosition += 7;
-        if (yPosition > 270) {
-          doc.addPage();
-          yPosition = 20;
-        }
+      // Skip null or undefined recommendations
+      if (!rec) return;
+      
+      // Safely access properties with proper null checks
+      const recText = (typeof rec === "object" && rec && "description" in rec && rec.description) 
+        ? rec.description 
+        : String(rec || "");
+        
+      doc.text(`• ${recText}`, 20, yPosition);
+      yPosition += 7;
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
       }
     });
   }
