@@ -1,3 +1,4 @@
+
 import { jsPDF } from "jspdf";
 import { getRecommendations } from "@/utils/carbon-calculations";
 
@@ -10,6 +11,9 @@ type EmissionData = {
   unit: string;
   factor: number;
 };
+
+// Define a type for the recommendations that can be returned
+type Recommendation = string | { description: string } | unknown;
 
 /**
  * Creates and returns a PDF document with emission data
@@ -54,7 +58,7 @@ export const exportEmissionsToPDF = (
     yPosition += 10;
   });
 
-  const recommendationsList = getRecommendations(emissionData);
+  const recommendationsList = getRecommendations(emissionData) as Recommendation[];
 
   if (recommendationsList.length > 0) {
     yPosition += 10;
@@ -67,8 +71,8 @@ export const exportEmissionsToPDF = (
       // Safely handle recommendations of different types
       const recText = typeof rec === 'string' 
         ? rec 
-        : (typeof rec === 'object' && rec && 'description' in rec 
-          ? rec.description 
+        : (typeof rec === 'object' && rec !== null && 'description' in rec 
+          ? (rec as { description: string }).description 
           : String(rec));
         
       doc.text(`• ${recText}`, 20, yPosition);
