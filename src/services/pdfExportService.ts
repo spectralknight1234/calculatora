@@ -25,72 +25,81 @@ export const exportEmissionsToPDF = (
   totalEmissions: number,
   goal: number
 ): jsPDF => {
-  const doc = new jsPDF();
+  try {
+    const doc = new jsPDF();
 
-  doc.setFontSize(20);
-  doc.text("Relatório de Pegada de Carbono", 20, 20);
+    doc.setFontSize(20);
+    doc.text("Relatório de Pegada de Carbono", 20, 20);
 
-  const today = new Date().toLocaleDateString("pt-BR");
-  doc.setFontSize(10);
-  doc.text(`Gerado em: ${today}`, 20, 30);
+    const today = new Date().toLocaleDateString("pt-BR");
+    doc.setFontSize(10);
+    doc.text(`Gerado em: ${today}`, 20, 30);
 
-  doc.setFontSize(14);
-  doc.text("Resumo de Emissões", 20, 40);
-
-  doc.setFontSize(12);
-  doc.text(`Emissão Total: ${totalEmissions.toFixed(1)} kg CO₂e`, 20, 50);
-  doc.text(`Meta: ${goal} kg CO₂e`, 20, 60);
-
-  doc.setFontSize(14);
-  doc.text("Detalhamento por Categoria", 20, 75);
-
-  let yPosition = 85;
-
-  doc.setFontSize(10);
-  doc.text("Categoria", 20, yPosition);
-  doc.text("Emissões (kg CO₂e)", 90, yPosition);
-  yPosition += 5;
-
-  doc.line(20, yPosition, 180, yPosition);
-  yPosition += 10;
-
-  emissionData.forEach((category) => {
-    doc.text(category.name, 20, yPosition);
-    doc.text(category.emissions.toFixed(1), 90, yPosition);
-    yPosition += 10;
-  });
-
-  const recommendationsList = getRecommendations(emissionData) as Recommendation[];
-
-  if (recommendationsList.length > 0) {
-    yPosition += 10;
     doc.setFontSize(14);
-    doc.text("Recomendações para Redução", 20, yPosition);
-    yPosition += 10;
+    doc.text("Resumo de Emissões", 20, 40);
+
+    doc.setFontSize(12);
+    doc.text(`Emissão Total: ${totalEmissions.toFixed(1)} kg CO₂e`, 20, 50);
+    doc.text(`Meta: ${goal} kg CO₂e`, 20, 60);
+
+    doc.setFontSize(14);
+    doc.text("Detalhamento por Categoria", 20, 75);
+
+    let yPosition = 85;
 
     doc.setFontSize(10);
-    recommendationsList.forEach((rec) => {
-      // Safely handle recommendations of different types
-      const recText = typeof rec === 'string' 
-        ? rec 
-        : (typeof rec === 'object' && rec !== null && 'description' in rec 
-          ? (rec as { description: string }).description 
-          : String(rec));
-        
-      doc.text(`• ${recText}`, 20, yPosition);
-      yPosition += 7;
-      if (yPosition > 270) {
-        doc.addPage();
-        yPosition = 20;
-      }
-    });
-  }
+    doc.text("Categoria", 20, yPosition);
+    doc.text("Emissões (kg CO₂e)", 90, yPosition);
+    yPosition += 5;
 
-  return doc;
+    doc.line(20, yPosition, 180, yPosition);
+    yPosition += 10;
+
+    emissionData.forEach((category) => {
+      doc.text(category.name, 20, yPosition);
+      doc.text(category.emissions.toFixed(1), 90, yPosition);
+      yPosition += 10;
+    });
+
+    const recommendationsList = getRecommendations(emissionData) as Recommendation[];
+
+    if (recommendationsList.length > 0) {
+      yPosition += 10;
+      doc.setFontSize(14);
+      doc.text("Recomendações para Redução", 20, yPosition);
+      yPosition += 10;
+
+      doc.setFontSize(10);
+      recommendationsList.forEach((rec) => {
+        // Safely handle recommendations of different types
+        const recText = typeof rec === 'string' 
+          ? rec 
+          : (typeof rec === 'object' && rec !== null && 'description' in rec 
+            ? (rec as { description: string }).description 
+            : String(rec));
+          
+        doc.text(`• ${recText}`, 20, yPosition);
+        yPosition += 7;
+        if (yPosition > 270) {
+          doc.addPage();
+          yPosition = 20;
+        }
+      });
+    }
+
+    return doc;
+  } catch (error) {
+    console.error("Erro ao gerar PDF:", error);
+    toast.error("Erro ao gerar o PDF. Tente novamente.");
+    // Return a simple error PDF
+    const errorDoc = new jsPDF();
+    errorDoc.text("Erro ao gerar o relatório. Tente novamente.", 20, 20);
+    return errorDoc;
+  }
 };
 
 /**
- * Actually sends a PDF report by email using EmailJS
+ * Sends a PDF report by email using EmailJS
  */
 export const sendPDFByEmail = async (
   email: string,
@@ -99,20 +108,20 @@ export const sendPDFByEmail = async (
   goal: number
 ): Promise<boolean> => {
   try {
-    // Gera o PDF
+    // Generate the PDF
     const doc = exportEmissionsToPDF(emissionData, totalEmissions, goal);
     
-    // Converte o PDF para base64
+    // Convert PDF to base64
     const pdfData = doc.output('datauristring');
     
-    // Configurações do EmailJS
-    // Nota: Estas são configurações de exemplo. O usuário precisará criar uma conta gratuita no EmailJS
-    // e substituir com suas próprias credenciais para uso em produção
-    const serviceID = 'default_service'; // Serviço de email de demonstração
-    const templateID = 'template_carbon_report'; // Template de demonstração
-    const userID = 'user_demo123456'; // ID de usuário de demonstração
+    // EmailJS configuration
+    // Note: These are placeholders. User will need to create a free EmailJS account
+    // and replace with their own credentials for production use
+    const serviceID = 'default_service'; // Demo email service
+    const templateID = 'template_carbon_report'; // Demo template
+    const userID = 'user_demo123456'; // Demo user ID
     
-    // Prepara os dados para envio
+    // Prepare data for sending
     const templateParams = {
       to_email: email,
       from_name: 'Calculadora de Pegada de Carbono',
@@ -120,16 +129,14 @@ export const sendPDFByEmail = async (
       pdf_attachment: pdfData
     };
     
-    // No modo de demonstração, salvamos o PDF e mostramos um toast de sucesso
-    // Em produção, isso enviaria o email de verdade com o ID de usuário real do EmailJS
+    // In demo mode, we save the PDF locally and show a success toast
+    // In production, this would send the actual email with a real EmailJS user ID
     doc.save("relatorio-pegada-carbono.pdf");
     
-    // Simula o envio para não depender de credenciais reais
-    // Em produção, descomente a linha abaixo e use credenciais reais
+    // Uncomment the line below and use real credentials for actual email sending
     // await emailjs.send(serviceID, templateID, templateParams, userID);
     
     toast.success(`Email enviado com sucesso para ${email}! (Modo de demonstração: PDF baixado localmente)`);
-    
     toast.info('Para envio real de emails, configure seu próprio EmailJS em produção');
     
     return true;

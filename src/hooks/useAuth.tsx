@@ -24,23 +24,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Verificar se o usuário é admin
+  // Verificar se o usuário é admin com tratamento de erro aprimorado
   const checkUserRole = async (userId: string) => {
     try {
+      // Primeira tentativa - usando o método RPC para evitar problemas de RLS
       const { data, error } = await supabase
+        .rpc('get_user_role', { user_id: userId });
+
+      if (!error && data) {
+        setIsAdmin(data === 'admin');
+        return;
+      }
+      
+      // Fallback - tentativa direta na tabela
+      console.log("Usando método alternativo para verificar role do usuário");
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', userId)
         .single();
 
-      if (error) {
-        console.error('Erro ao verificar papel do usuário:', error);
+      if (profileError) {
+        console.error('Erro ao verificar papel do usuário:', profileError);
+        // Não falha completamente, apenas assume que não é admin
+        setIsAdmin(false);
         return;
       }
 
-      setIsAdmin(data.role === 'admin');
+      setIsAdmin(profileData?.role === 'admin');
     } catch (e) {
       console.error('Erro ao verificar papel do usuário:', e);
+      // Em caso de erro, assumimos que o usuário não é admin para permitir o funcionamento da aplicação
+      setIsAdmin(false);
     }
   };
 
@@ -54,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Usando setTimeout para evitar recursão infinita nas políticas RLS
           setTimeout(() => {
             checkUserRole(session.user.id);
-          }, 0);
+          }, 100);
         } else {
           setIsAdmin(false);
         }
@@ -69,7 +84,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        checkUserRole(session.user.id);
+        setTimeout(() => {
+          checkUserRole(session.user.id);
+        }, 100);
       }
       
       setLoading(false);
