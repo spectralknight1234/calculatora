@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,7 +12,6 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  // Redireciona para a página inicial se o usuário já estiver logado
   if (user && !loading) {
     return <Navigate to="/" replace />;
   }
@@ -37,7 +35,7 @@ const Auth = () => {
               <Leaf className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Eco Footprint Dashboard</h1>
+          <h1 className="text-2xl font-bold">Calculadora de Pegada de Carbono</h1>
           <p className="text-muted-foreground mt-2">
             Monitore sua pegada de carbono e tome decisões sustentáveis
           </p>
