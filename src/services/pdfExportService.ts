@@ -50,7 +50,7 @@ export function exportEmissionsToPDF(emissionData: EmissionCategory[], totalEmis
     doc.setFontSize(10);
     recommendationsList.forEach(rec => {
       // Verifica o tipo da recomendação (pode ser string ou objeto)
-      const recText = typeof rec === 'object' && rec !== null ? rec.description : String(rec);
+      const recText = typeof rec === 'object' && rec !== null ? rec.description : String(rec || '');
       doc.text(`• ${recText}`, 20, yPosition);
       yPosition += 7;
       if (yPosition > 270) {
