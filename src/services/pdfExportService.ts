@@ -1,4 +1,3 @@
-
 import { jsPDF } from "jspdf";
 import { getRecommendations } from "@/utils/carbon-calculations";
 
@@ -65,13 +64,12 @@ export const exportEmissionsToPDF = (
 
     doc.setFontSize(10);
     recommendationsList.forEach((rec) => {
-      // Skip null or undefined recommendations
-      if (!rec) return;
-      
-      // Safely access properties with proper null checks
-      const recText = (typeof rec === "object" && rec && "description" in rec && rec.description) 
-        ? rec.description 
-        : String(rec || "");
+      // Safely handle recommendations of different types
+      const recText = typeof rec === 'string' 
+        ? rec 
+        : (typeof rec === 'object' && rec && 'description' in rec 
+          ? rec.description 
+          : String(rec));
         
       doc.text(`• ${recText}`, 20, yPosition);
       yPosition += 7;
