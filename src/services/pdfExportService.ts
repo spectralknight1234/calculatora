@@ -1,7 +1,16 @@
 
 import { jsPDF } from "jspdf";
-import { EmissionData } from "@/hooks/useEmissionData";
 import { getRecommendations } from "@/utils/carbon-calculations";
+
+// Define EmissionData type here to avoid importing it
+type EmissionData = {
+  id: string;
+  name: string;
+  color: string;
+  emissions: number;
+  unit: string;
+  factor: number;
+};
 
 /**
  * Creates and returns a PDF document with emission data
@@ -57,12 +66,14 @@ export const exportEmissionsToPDF = (
     doc.setFontSize(10);
     recommendationsList.forEach((rec) => {
       // Fix for the TS error: Check if rec is null before accessing it
-      const recText = rec ? (typeof rec === "object" ? rec.description : String(rec)) : "";
-      doc.text(`• ${recText}`, 20, yPosition);
-      yPosition += 7;
-      if (yPosition > 270) {
-        doc.addPage();
-        yPosition = 20;
+      if (rec) {
+        const recText = typeof rec === "object" ? rec.description : String(rec);
+        doc.text(`• ${recText}`, 20, yPosition);
+        yPosition += 7;
+        if (yPosition > 270) {
+          doc.addPage();
+          yPosition = 20;
+        }
       }
     });
   }
