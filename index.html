@@ -1,26 +1,154 @@
+
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>eco-footprint-dashboard-vision</title>
-    <meta name="description" content=" Gabriel  Project" />
-    <meta name="author" content="Lovable" />
-
-    <meta property="og:title" content="eco-footprint-dashboard-vision" />
-    <meta property="og:description" content="Lovable Generated Project" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-  </head>
-
-  <body>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Footprint Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/recharts@2.12.7/umd/Recharts.js"></script>
+    <script src="https://unpkg.com/jspdf@3.0.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sonner@1.5.0/dist/index.min.js"></script>
+</head>
+<body class="bg-background min-h-screen">
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+    <script type="text/babel">
+    // Importações e configurações simuladas
+    const { jsPDF } = window.jspdf;
+    const { Sonner } = window.Sonner;
+
+    // Utilitários Carbon Calculations (simplificado)
+    const getRecommendations = (emissionData) => {
+        return emissionData.map(category => {
+            switch(category.name) {
+                case 'Transporte':
+                    return 'Reduza o uso de transporte individual';
+                case 'Energia':
+                    return 'Economize energia em casa';
+                default:
+                    return 'Adote práticas sustentáveis';
+            }
+        });
+    };
+
+    // Função de exportação de PDF
+    const exportEmissionsToPDF = (emissionData, totalEmissions, goal) => {
+        const doc = new jsPDF();
+        
+        doc.setFontSize(20);
+        doc.text("Relatório de Pegada de Carbono", 20, 20);
+        
+        const today = new Date().toLocaleDateString('pt-BR');
+        doc.setFontSize(10);
+        doc.text(`Gerado em: ${today}`, 20, 30);
+        
+        doc.setFontSize(14);
+        doc.text("Resumo de Emissões", 20, 40);
+        
+        doc.setFontSize(12);
+        doc.text(`Emissão Total: ${totalEmissions.toFixed(1)} kg CO₂e`, 20, 50);
+        doc.text(`Meta: ${goal} kg CO₂e`, 20, 60);
+        
+        doc.save("relatorio-pegada-carbono.pdf");
+        alert("Relatório PDF gerado com sucesso!");
+    };
+
+    // Componente principal
+    const App = () => {
+        const [emissionData, setEmissionData] = React.useState([
+            { name: 'Transporte', emissions: 50 },
+            { name: 'Energia', emissions: 100 },
+            { name: 'Alimentação', emissions: 75 }
+        ]);
+
+        const totalEmissions = emissionData.reduce((sum, category) => sum + category.emissions, 0);
+        const goal = 250;
+
+        const handleCalculate = (newCategory) => {
+            const updatedEmissions = [...emissionData, newCategory];
+            setEmissionData(updatedEmissions);
+        };
+
+        const resetEmissionData = () => {
+            setEmissionData([]);
+        };
+
+        return (
+            <div className="container mx-auto py-8">
+                <header className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-primary">Eco Footprint Dashboard</h1>
+                </header>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h2 className="text-xl font-semibold mb-4">Calculadora de Emissões</h2>
+                        <div className="space-y-4">
+                            <input 
+                                type="text" 
+                                placeholder="Nome da Categoria" 
+                                className="w-full p-2 border rounded"
+                                id="categoryInput"
+                            />
+                            <input 
+                                type="number" 
+                                placeholder="Emissões (kg CO₂e)" 
+                                className="w-full p-2 border rounded"
+                                id="emissionsInput"
+                            />
+                            <button 
+                                onClick={() => {
+                                    const category = document.getElementById('categoryInput').value;
+                                    const emissions = parseFloat(document.getElementById('emissionsInput').value);
+                                    handleCalculate({ name: category, emissions });
+                                }}
+                                className="w-full bg-primary text-white p-2 rounded hover:bg-primary-dark"
+                            >
+                                Calcular Emissões
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h2 className="text-xl font-semibold mb-4">Resumo de Emissões</h2>
+                        <div>
+                            <p>Emissão Total: {totalEmissions.toFixed(1)} kg CO₂e</p>
+                            <p>Meta: {goal} kg CO₂e</p>
+                            <button 
+                                onClick={() => exportEmissionsToPDF(emissionData, totalEmissions, goal)}
+                                className="mt-4 w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
+                            >
+                                Exportar PDF
+                            </button>
+                            <button 
+                                onClick={resetEmissionData}
+                                className="mt-2 w-full bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                            >
+                                Resetar Dados
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="mt-8 bg-white p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4">Categorias de Emissão</h2>
+                    <ul>
+                        {emissionData.map((category, index) => (
+                            <li key={index} className="border-b py-2">
+                                {category.name}: {category.emissions.toFixed(1)} kg CO₂e
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        );
+    };
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
 </html>
+
