@@ -1,18 +1,14 @@
 
-import { Leaf } from "lucide-react";
+import UserButton from "@/components/UserButton";
 
 const DashboardHeader = () => {
   return (
-    <div className="flex items-center justify-between pb-6">
-      <div className="flex items-center space-x-2">
-        <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-          <Leaf className="h-6 w-6 text-primary-foreground" />
-        </div>
-        <div>
-          <h1 className="font-bold text-2xl">Calculadora de Pegada de Carbono</h1>
-          <p className="text-muted-foreground">Meça e reduza seu impacto ambiental</p>
-        </div>
+    <div className="flex justify-between items-center mb-8">
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Eco Footprint Dashboard</h1>
+        <p className="text-muted-foreground mt-1">Monitore sua pegada de carbono e tome decisões sustentáveis</p>
       </div>
+      <UserButton />
     </div>
   );
 };
