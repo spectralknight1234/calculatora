@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { RefreshCcw, FileText, Mail } from "lucide-react";
+import { RefreshCcw, FileText, Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -36,19 +36,25 @@ interface DashboardActionsProps {
 
 const DashboardActions = ({ emissionData, totalEmissions, goal, onResetData }: DashboardActionsProps) => {
   const [email, setEmail] = useState("");
+  const [isEmailSending, setIsEmailSending] = useState(false);
   
   const handleExportPDF = () => {
     exportEmissionsToPDF(emissionData, totalEmissions, goal);
   };
   
-  const handleSendEmail = () => {
+  const handleSendEmail = async () => {
     if (!email || !email.includes('@')) {
       toast.error("Por favor, insira um endereço de e-mail válido.");
       return;
     }
     
-    sendPDFByEmail(email, emissionData, totalEmissions, goal);
-    setEmail("");
+    setIsEmailSending(true);
+    try {
+      await sendPDFByEmail(email, emissionData, totalEmissions, goal);
+      setEmail("");
+    } finally {
+      setIsEmailSending(false);
+    }
   };
 
   return (
@@ -115,8 +121,16 @@ const DashboardActions = ({ emissionData, totalEmissions, goal, onResetData }: D
               onClick={handleSendEmail} 
               size="sm"
               className="bg-primary text-white"
+              disabled={isEmailSending}
             >
-              Enviar Relatório
+              {isEmailSending ? (
+                <>
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                <>Enviar Relatório</>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
