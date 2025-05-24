@@ -1,175 +1,136 @@
+import React, { useState, useEffect } from "react";
 
-import { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Session, User } from '@supabase/supabase-js';
-import { toast } from 'sonner';
+const PASSWORD_SECRET = "senha-super-secreta"; // Troque por algo mais seguro
+const SALT = "salt-unica";
 
-type AuthContextType = {
-  session: Session | null;
-  user: User | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  isAdmin: boolean;
-  error: string | null;
-};
+async function getKey() {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(PASSWORD_SECRET),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+  return crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: enc.encode(SALT),
+      iterations: 100000,
+      hash: "SHA-256",
+    },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+async function encrypt(text: string) {
+  const key = await getKey();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    enc.encode(text)
+  );
 
-  // Verificar se o usuário é admin com tratamento de erro aprimorado
-  const checkUserRole = async (userId: string) => {
+  const buffer = new Uint8Array(iv.byteLength + encrypted.byteLength);
+  buffer.set(iv, 0);
+  buffer.set(new Uint8Array(encrypted), iv.byteLength);
+
+  return btoa(String.fromCharCode(...buffer));
+}
+
+async function decrypt(data: string) {
+  const key = await getKey();
+  const buffer = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+  const iv = buffer.slice(0, 12);
+  const encrypted = buffer.slice(12);
+
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv },
+    key,
+    encrypted
+  );
+
+  const dec = new TextDecoder();
+  return dec.decode(decrypted);
+}
+
+export function EncryptedCredentials() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [loadedEmail, setLoadedEmail] = useState<string | null>(null);
+  const [loadedPassword, setLoadedPassword] = useState<string | null>(null);
+
+  const saveCredentials = async () => {
+    const encryptedEmail = await encrypt(email);
+    const encryptedPass = await encrypt(password);
+
+    localStorage.setItem("encrypted_email", encryptedEmail);
+    localStorage.setItem("encrypted_password", encryptedPass);
+
+    setSaved(true);
+  };
+
+  const loadCredentials = async () => {
+    const encryptedEmail = localStorage.getItem("encrypted_email");
+    const encryptedPass = localStorage.getItem("encrypted_password");
+
+    if (!encryptedEmail || !encryptedPass) {
+      setLoadedEmail(null);
+      setLoadedPassword(null);
+      return;
+    }
+
     try {
-      // Primeira tentativa - usando o método RPC para evitar problemas de RLS
-      const { data, error } = await supabase
-        .rpc('get_user_role', { user_id: userId });
+      const decEmail = await decrypt(encryptedEmail);
+      const decPass = await decrypt(encryptedPass);
 
-      if (!error && data) {
-        setIsAdmin(data === 'admin');
-        return;
-      }
-      
-      // Fallback - tentativa direta na tabela
-      console.log("Usando método alternativo para verificar role do usuário");
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .single();
-
-      if (profileError) {
-        console.error('Erro ao verificar papel do usuário:', profileError);
-        // Não falha completamente, apenas assume que não é admin
-        setIsAdmin(false);
-        return;
-      }
-
-      setIsAdmin(profileData?.role === 'admin');
-    } catch (e) {
-      console.error('Erro ao verificar papel do usuário:', e);
-      // Em caso de erro, assumimos que o usuário não é admin para permitir o funcionamento da aplicação
-      setIsAdmin(false);
+      setLoadedEmail(decEmail);
+      setLoadedPassword(decPass);
+    } catch {
+      setLoadedEmail(null);
+      setLoadedPassword(null);
     }
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Usando setTimeout para evitar recursão infinita nas políticas RLS
-          setTimeout(() => {
-            checkUserRole(session.user.id);
-          }, 100);
-        } else {
-          setIsAdmin(false);
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        setTimeout(() => {
-          checkUserRole(session.user.id);
-        }, 100);
-      }
-      
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    loadCredentials();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      
-      if (error) {
-        setError(error.message);
-        toast.error(error.message);
-      }
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'Erro ao fazer login';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signUp = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const { error } = await supabase.auth.signUp({ 
-        email, 
-        password,
-        options: {
-          emailRedirectTo: window.location.origin
-        }
-      });
-      
-      if (error) {
-        setError(error.message);
-        toast.error(error.message);
-      } else {
-        toast.success('Conta criada com sucesso! Verifique seu email.');
-      }
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'Erro ao criar conta';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        setError(error.message);
-        toast.error(error.message);
-      }
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'Erro ao sair';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <AuthContext.Provider value={{ session, user, loading, signIn, signUp, signOut, isAdmin, error }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+    <div style={{ padding: 20, fontFamily: "Arial" }}>
+      <h2>Salvar Credenciais Criptografadas</h2>
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
-  }
-  return context;
-};
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{ marginBottom: 10, width: "100%", padding: 8 }}
+      />
+      <input
+        type="password"
+        placeholder="Senha"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ marginBottom: 10, width: "100%", padding: 8 }}
+      />
+
+      <button onClick={saveCredentials} style={{ padding: 10 }}>
+        Salvar no localStorage
+      </button>
+
+      {saved && <p style={{ color: "green" }}>Credenciais salvas com sucesso!</p>}
+
+      <h3>Credenciais carregadas do localStorage:</h3>
+      <p>Email: {loadedEmail ?? "Nenhum dado"}</p>
+      <p>Senha: {loadedPassword ?? "Nenhum dado"}</p>
+    </div>
+  );
+}
