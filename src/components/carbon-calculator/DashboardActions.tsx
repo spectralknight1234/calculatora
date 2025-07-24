@@ -58,35 +58,23 @@ const DashboardActions = ({ emissionData, totalEmissions, goal, onResetData }: D
   };
 
   return (
-    <div className="flex justify-end gap-2 mb-4">
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button variant="outline" size="sm" className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600">
-            <RefreshCcw size={16} className="mr-1" />
-            Limpar Histórico
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Limpar histórico de cálculos?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação irá apagar todas as emissões calculadas até o momento.
-              Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={onResetData} className="bg-red-500 hover:bg-red-600">
-              Sim, limpar histórico
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+    <div className="flex flex-wrap justify-center md:justify-end gap-3 mb-6 p-4 bg-card rounded-lg border shadow-sm">
+      {/* Botão Exportar PDF - destacado */}
+      <Button 
+        variant="default" 
+        size="sm" 
+        onClick={handleExportPDF} 
+        className="bg-primary text-primary-foreground hover:bg-primary/90"
+      >
+        <FileText size={16} className="mr-2" />
+        Exportar PDF
+      </Button>
       
+      {/* Botão Enviar por Email */}
       <Dialog>
         <DialogTrigger asChild>
           <Button variant="outline" size="sm" className="text-blue-500 border-blue-200 hover:bg-blue-50 hover:text-blue-600">
-            <Mail size={16} className="mr-1" />
+            <Mail size={16} className="mr-2" />
             Enviar por Email
           </Button>
         </DialogTrigger>
@@ -135,11 +123,31 @@ const DashboardActions = ({ emissionData, totalEmissions, goal, onResetData }: D
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
-      <Button variant="outline" size="sm" onClick={handleExportPDF} className="text-primary border-primary/20 hover:bg-primary/5">
-        <FileText size={16} className="mr-1" />
-        Exportar para PDF
-      </Button>
+
+      {/* Botão Limpar Histórico */}
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="outline" size="sm" className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600">
+            <RefreshCcw size={16} className="mr-2" />
+            Limpar Histórico
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Limpar histórico de cálculos?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação irá apagar todas as emissões calculadas até o momento.
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={onResetData} className="bg-red-500 hover:bg-red-600">
+              Sim, limpar histórico
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
