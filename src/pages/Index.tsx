@@ -12,10 +12,22 @@ const Index = () => {
     totalEmissions, 
     chartData, 
     handleCalculate, 
-    resetEmissionData 
+    resetEmissionData,
+    loading
   } = useEmissionData();
   
   const goal = 250; // Meta de redução de carbono em kg CO2e
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando dados de emissões...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

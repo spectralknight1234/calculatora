@@ -42,7 +42,14 @@ const Admin = () => {
         throw error;
       }
 
-      setUsers(data || []);
+      const profilesData = data?.map(profile => ({
+        id: profile.id,
+        email: profile.email,
+        role: profile.role as 'user' | 'admin',
+        created_at: profile.created_at
+      })) || [];
+      
+      setUsers(profilesData);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro ao carregar usuários';
       toast.error(errorMessage);
