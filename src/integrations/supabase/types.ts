@@ -41,6 +41,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_emissions: {
+        Row: {
+          category_color: string
+          category_id: string
+          category_name: string
+          created_at: string
+          emissions: number
+          factor: number
+          id: string
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_color: string
+          category_id: string
+          category_name: string
+          created_at?: string
+          emissions?: number
+          factor?: number
+          id?: string
+          unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_color?: string
+          category_id?: string
+          category_name?: string
+          created_at?: string
+          emissions?: number
+          factor?: number
+          id?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
