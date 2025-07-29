@@ -31,7 +31,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 px-4 lg:py-8">
         <DashboardHeader />
 
         <DashboardActions 

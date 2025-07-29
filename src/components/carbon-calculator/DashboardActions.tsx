@@ -58,13 +58,13 @@ const DashboardActions = ({ emissionData, totalEmissions, goal, onResetData }: D
   };
 
   return (
-    <div className="flex flex-wrap justify-center md:justify-end gap-3 mb-6 p-4 bg-card rounded-lg border shadow-sm">
+    <div className="flex flex-col sm:flex-row gap-3 mb-6 p-4 bg-card rounded-lg border shadow-sm">
       {/* Botão Exportar PDF - destacado */}
       <Button 
         variant="default" 
         size="sm" 
         onClick={handleExportPDF} 
-        className="bg-primary text-primary-foreground hover:bg-primary/90"
+        className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
       >
         <FileText size={16} className="mr-2" />
         Exportar PDF
@@ -73,7 +73,7 @@ const DashboardActions = ({ emissionData, totalEmissions, goal, onResetData }: D
       {/* Botão Enviar por Email */}
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm" className="text-blue-500 border-blue-200 hover:bg-blue-50 hover:text-blue-600">
+          <Button variant="outline" size="sm" className="text-blue-500 border-blue-200 hover:bg-blue-50 hover:text-blue-600 w-full sm:w-auto">
             <Mail size={16} className="mr-2" />
             Enviar por Email
           </Button>
@@ -127,7 +127,7 @@ const DashboardActions = ({ emissionData, totalEmissions, goal, onResetData }: D
       {/* Botão Limpar Histórico */}
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="outline" size="sm" className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600">
+          <Button variant="outline" size="sm" className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 w-full sm:w-auto">
             <RefreshCcw size={16} className="mr-2" />
             Limpar Histórico
           </Button>
