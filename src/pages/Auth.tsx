@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,6 +76,11 @@ const Auth = () => {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Entrando...' : 'Entrar'}
               </Button>
+              <div className="text-center">
+                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                  Esqueceu sua senha?
+                </Link>
+              </div>
             </form>
           </TabsContent>
           
