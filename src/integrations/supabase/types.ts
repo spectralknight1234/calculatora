@@ -237,6 +237,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_emissions: {
+        Row: {
+          category_color: string
+          category_id: string
+          category_name: string
+          created_at: string
+          emissions: number
+          factor: number
+          id: string
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_color: string
+          category_id: string
+          category_name: string
+          created_at?: string
+          emissions?: number
+          factor?: number
+          id?: string
+          unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_color?: string
+          category_id?: string
+          category_name?: string
+          created_at?: string
+          emissions?: number
+          factor?: number
+          id?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       popular_pages_stats: {
@@ -262,10 +319,17 @@ export type Database = {
       }
     }
     Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       reset_monthly_usage: { Args: never; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -392,6 +456,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
