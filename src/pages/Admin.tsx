@@ -14,15 +14,17 @@ import {
 import { Button } from '@/components/ui/button';
 import { Shield } from 'lucide-react';
 
-type Profile = {
+const db = supabase as any;
+
+type ProfileWithRole = {
   id: string;
-  email: string;
+  email: string | null;
   role: 'user' | 'admin';
   created_at: string;
 }
 
 const Admin = () => {
-  const [users, setUsers] = useState<Profile[]>([]);
+  const [users, setUsers] = useState<ProfileWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
@@ -33,21 +35,30 @@ const Admin = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      // Fetch profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        throw error;
-      }
+      if (profilesError) throw profilesError;
 
-      const profilesData = data?.map(profile => ({
+      // Fetch roles
+      const { data: roles, error: rolesError } = await db
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      const rolesMap = new Map<string, string>();
+      (roles || []).forEach((r: any) => rolesMap.set(r.user_id, r.role));
+
+      const profilesData: ProfileWithRole[] = (profiles || []).map((profile) => ({
         id: profile.id,
         email: profile.email,
-        role: profile.role as 'user' | 'admin',
+        role: (rolesMap.get(profile.id) === 'admin' ? 'admin' : 'user') as 'user' | 'admin',
         created_at: profile.created_at
-      })) || [];
+      }));
       
       setUsers(profilesData);
     } catch (error) {
@@ -60,18 +71,25 @@ const Admin = () => {
 
   const toggleUserRole = async (id: string, currentRole: 'user' | 'admin') => {
     try {
+      if (currentRole === 'user') {
+        // Promote: insert admin role
+        const { error } = await db
+          .from('user_roles')
+          .upsert({ user_id: id, role: 'admin' });
+        if (error) throw error;
+      } else {
+        // Demote: delete admin role
+        const { error } = await db
+          .from('user_roles')
+          .delete()
+          .eq('user_id', id)
+          .eq('role', 'admin');
+        if (error) throw error;
+      }
+      
       const newRole = currentRole === 'user' ? 'admin' : 'user';
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', id);
-
-      if (error) throw error;
-      
       toast.success(`Papel do usuário alterado para ${newRole}`);
       
-      // Atualiza a lista de usuários
       setUsers(users.map(u => 
         u.id === id ? { ...u, role: newRole } : u
       ));

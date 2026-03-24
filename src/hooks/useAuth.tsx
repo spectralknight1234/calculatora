@@ -58,17 +58,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkAdminStatus = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
+      const { data, error } = await (supabase as any)
+        .from('user_roles')
         .select('role')
-        .eq('id', userId)
-        .single();
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
       
-      if (!error && data) {
-        setIsAdmin(data.role === 'admin');
+      if (!error) {
+        setIsAdmin(!!data);
       }
     } catch (error) {
-      // Silently handle error - user might not have a profile yet
       setIsAdmin(false);
     }
   };

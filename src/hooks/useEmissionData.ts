@@ -5,17 +5,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { EmissionCategory, DEFAULT_EMISSION_DATA, calculateEmission, getCategoryName, getCategoryColor, getCategoryUnit } from "@/utils/carbon-calculations";
 
+// Use any-typed client for user_emissions table (not in generated types yet)
+const db = supabase as any;
+
 export function useEmissionData() {
   const { user } = useAuth();
   const [emissionData, setEmissionData] = useState<EmissionCategory[]>(DEFAULT_EMISSION_DATA);
   const [loading, setLoading] = useState(true);
 
-  // Carrega os dados do usuário do Supabase
   useEffect(() => {
     if (user) {
       loadUserEmissions();
     } else {
-      // Se não há usuário, usar dados padrão zerados
       setEmissionData(DEFAULT_EMISSION_DATA.map(category => ({
         ...category,
         emissions: 0
@@ -29,7 +30,7 @@ export function useEmissionData() {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('user_emissions')
         .select('*')
         .eq('user_id', user.id);
@@ -37,8 +38,7 @@ export function useEmissionData() {
       if (error) throw error;
 
       if (data && data.length > 0) {
-        // Converte os dados do banco para o formato esperado
-        const loadedData: EmissionCategory[] = data.map(item => ({
+        const loadedData: EmissionCategory[] = data.map((item: any) => ({
           id: item.category_id,
           name: item.category_name,
           color: item.category_color,
@@ -49,14 +49,11 @@ export function useEmissionData() {
         
         setEmissionData(loadedData);
       } else {
-        // Se não há dados, inicializar com categorias padrão zeradas
         const initialData = DEFAULT_EMISSION_DATA.map(category => ({
           ...category,
           emissions: 0
         }));
         setEmissionData(initialData);
-        
-        // Salvar as categorias iniciais no banco
         await saveInitialCategories(initialData);
       }
     } catch (error) {
@@ -81,7 +78,7 @@ export function useEmissionData() {
         factor: category.factor
       }));
 
-      const { error } = await supabase
+      const { error } = await db
         .from('user_emissions')
         .insert(categoriesData);
 
@@ -115,9 +112,8 @@ export function useEmissionData() {
     const emissionAmount = calculateEmission(values.category, values.amount);
     
     try {
-      // Atualiza no banco de dados
       const currentEmissions = emissionData.find(item => item.id === values.category)?.emissions || 0;
-      const { error } = await supabase
+      const { error } = await db
         .from('user_emissions')
         .upsert({
           user_id: user.id,
@@ -131,7 +127,6 @@ export function useEmissionData() {
 
       if (error) throw error;
 
-      // Atualiza o estado local
       setEmissionData((prevData) => {
         const newData = [...prevData];
         const categoryIndex = newData.findIndex(
@@ -171,15 +166,13 @@ export function useEmissionData() {
     }
 
     try {
-      // Atualiza todas as emissões para 0 no banco
-      const { error } = await supabase
+      const { error } = await db
         .from('user_emissions')
         .update({ emissions: 0 })
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      // Atualiza o estado local
       const resetData = emissionData.map(category => ({
         ...category,
         emissions: 0
