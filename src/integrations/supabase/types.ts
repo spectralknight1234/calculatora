@@ -7,85 +7,262 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.12 (cd3cf9e)"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
-      profiles: {
+      ai_usage: {
+        Row: {
+          ai_type: string
+          created_at: string
+          id: string
+          last_reset: string
+          updated_at: string
+          usage_count: number
+          user_id: string | null
+        }
+        Insert: {
+          ai_type: string
+          created_at?: string
+          id?: string
+          last_reset?: string
+          updated_at?: string
+          usage_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          ai_type?: string
+          created_at?: string
+          id?: string
+          last_reset?: string
+          updated_at?: string
+          usage_count?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      document_collaborators: {
+        Row: {
+          added_at: string
+          document_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          document_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          document_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_collaborators_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_comments: {
+        Row: {
+          content: string
+          created_at: string
+          document_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          document_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_comments_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
         Row: {
           created_at: string
-          email: string
+          file_size: string
+          file_type: string
+          file_url: string | null
           id: string
-          role: string
+          name: string
+          status: string
+          tags: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
-          email: string
+          file_size: string
+          file_type: string
+          file_url?: string | null
           id?: string
-          role?: string
+          name: string
+          status?: string
+          tags?: string[] | null
           updated_at?: string
           user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_size?: string
+          file_type?: string
+          file_url?: string | null
+          id?: string
+          name?: string
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      page_visits: {
+        Row: {
+          id: string
+          ip_address: unknown
+          page_category: string
+          page_name: string
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+          visited_at: string
+        }
+        Insert: {
+          id?: string
+          ip_address?: unknown
+          page_category: string
+          page_name: string
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          visited_at?: string
+        }
+        Update: {
+          id?: string
+          ip_address?: unknown
+          page_category?: string
+          page_name?: string
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          visited_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
-          role?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_emissions: {
-        Row: {
-          category_color: string
-          category_id: string
-          category_name: string
-          created_at: string
-          emissions: number
-          factor: number
-          id: string
-          unit: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          category_color: string
-          category_id: string
-          category_name: string
-          created_at?: string
-          emissions?: number
-          factor?: number
-          id?: string
-          unit: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          category_color?: string
-          category_id?: string
-          category_name?: string
-          created_at?: string
-          emissions?: number
-          factor?: number
-          id?: string
-          unit?: string
-          updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      popular_pages_stats: {
+        Row: {
+          hour_period: string | null
+          last_visit: string | null
+          page_category: string | null
+          page_name: string | null
+          unique_users: number | null
+          visit_count: number | null
+        }
+        Relationships: []
+      }
+      realtime_stats: {
+        Row: {
+          page_category: string | null
+          page_name: string | null
+          percentage: number | null
+          unique_users_today: number | null
+          visits_today: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      reset_monthly_usage: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
